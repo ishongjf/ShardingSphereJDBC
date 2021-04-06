@@ -41,6 +41,6 @@ ShardingSphere于2020年4月16日成为Apache顶级基金项目,现有三部分�
             type: CLASS_BASED #算法类型-自定义算法
             props: #算法规则
               strategy: STANDARD 策略-标准策略
-              algorithmClassName: com.linkcld.rptanalysis.common.config.TrafficVehicleInfoTableShardingAlgorithm 分类算法类全路径名称
+              algorithmClassName: com.hongjf.shardingshperejdbc.common.config.TableShardingAlgorithm 分类算法类全路径名称
 ###### 新建spi文件
     在resource下新建META-INF包，在META-INF包里新建services包，在services包里新建org.apache.shardingsphere.sharding.spi.ShardingAlgorithm文件，在文件里写上自定义算法类的全路径类名称
