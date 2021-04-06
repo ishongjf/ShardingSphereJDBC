@@ -83,7 +83,7 @@ spring:
             type: CLASS_BASED #算法类型-自定义算法
             props: #算法规则
               strategy: STANDARD
-              algorithmClassName: com.linkcld.rptanalysis.common.config.TrafficVehicleInfoTableShardingAlgorithm
+              algorithmClassName: com.hongjf.shardingshperejdbc.common.config.TableShardingAlgorithm
         key-generators: #主键生成策略
           snowflake: #生成算法
             type: SNOWFLAKE #算法类型
