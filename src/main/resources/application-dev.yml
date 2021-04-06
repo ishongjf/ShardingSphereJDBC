@@ -1,0 +1,97 @@
+spring:
+  application:
+    name: sharding
+  profiles:
+    active: dev
+  datasource:
+    # 动态数据源
+    dynamic:
+      datasource:
+        master:
+          type: com.alibaba.druid.pool.DruidDataSource
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/sharding?characterEncoding=utf8&autoReconnect=true&tinyInt1isBit=false&useSSL=false
+          username: root
+          password: root
+          validation-query: select 'x'
+          initial-size: 11
+          max-active: 20
+          min-idle: 1
+          test-on-return: false
+          test-while-idle: true
+          min-evictable-idle-time-millis: 300000
+      primary: master
+      # 分表配置
+  shardingsphere:
+    props:
+      sql:
+        show: true #sql打印
+    datasource:
+      names: db
+      db:
+        url: jdbc:mysql://localhost:3306/sharding?characterEncoding=utf8&autoReconnect=true&tinyInt1isBit=false&useSSL=false
+        username: root
+        password: root
+      common:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        validation-query: select 'x'
+        initial-size: 11
+        max-active: 20
+        min-idle: 1
+        validationQueryTimeout: 5
+        test-on-borrow: false
+        test-on-return: false
+        test-while-idle: true
+        min-evictable-idle-time-millis: 300000
+    rules:
+      sharding:
+        tables:
+          course:
+            #表名规则配置
+            actual-data-nodes: db.course_20210$->{3..4}
+            key-generate-strategy:
+              #主键字段
+              column: id
+              #生成算法-雪花算法
+              key-generator-name: snowflake
+            table-strategy:
+              standard:
+                sharding-column: create_time #分表字段
+                sharding-algorithm-name: analysis-time-interval #分片算法
+          user:
+            actual-data-nodes: db.user$->{1..2}
+            key-generate-strategy:
+              #主键字段
+              column: id
+              #生成算法-雪花算法
+              key-generator-name: snowflake
+            table-strategy:
+              inline:
+                algorithm-expression: user$->{id%2}+1 #分片算法-行表达式
+        sharding-algorithms:
+          analysis-time-interval:
+            type: INTERVAL #算法类型-时间范围分片算法
+            props: #算法规则
+              datetime-pattern: yyyy-MM-dd HH:mm:ss
+              datetime-lower: 2021-03-01 00:00:00
+              datetime-upper: 2023-04-31 23:59:59
+              sharding-suffix-pattern: yyyyMM
+              datetime-interval-amount: 1
+              datetime-interval-unit: MONTHS
+          calssBased:
+            type: CLASS_BASED #算法类型-自定义算法
+            props: #算法规则
+              strategy: STANDARD
+              algorithmClassName: com.linkcld.rptanalysis.common.config.TrafficVehicleInfoTableShardingAlgorithm
+        key-generators: #主键生成策略
+          snowflake: #生成算法
+            type: SNOWFLAKE #算法类型
+            props: #算法规则
+              worker-id: 123
+  main:
+    allow-bean-definition-overriding: true #重复注册bean
+server:
+  port: 9000
+  servlet:
+    context-path: /sharding
